@@ -1,0 +1,126 @@
+<html>
+ 
+  <body>
+    　<video id="my-video" width="200px" autoplay muted playsinline></video>
+    <p>ID:<p id="my-id"></p></p>
+    <textarea id="their-id"></textarea>
+    <button id="make-call">発信</button>
+    <video id="their-video" width="400px" autoplay muted playsinline></video>
+    <div id="chat">
+        <div>
+        <!-- 保存されたデータが表示される箇所 -->
+        <div id="output"></div>
+      </div>　　　　
+      <div>
+        <!-- 名前 -->
+        名前
+        <input type="text" id="username">
+      </div>
+      <div>
+        <!-- テキストエリア -->
+      <p class="text1">テキスト</p>  
+      
+        <textarea name="" id="text" cols="30" rows="1"></textarea>
+      </div>
+      <div>
+        <!-- 送信ボタン -->
+        <button id="send">送信</button>
+      </div>    
+    </div>
+
+  <p>同期</p>
+ 
+  <div id="edit_area"></div>
+ 
+  <input id="button" type="button" value="Check" >
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="js/style.js"></script>  
+  
+  <script>
+ const { ipcRenderer } = require('electron')
+ const btn = document.getElementById('button')
+    
+ btn.addEventListener('click', () => {
+  ipcRenderer.send('url', "url")
+  console.log('message sending complete: wakuwaku:xxx')
+})
+
+ipcRenderer.on('wakuwaku:yyy', (event, arg) => {
+  console.log('receive message: wakuwaku:yyy')
+  console.log(arg)
+})
+ 
+  </script>
+ <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase.js"></script>
+
+ <script>
+     // Your web app's Firebase configuration
+     var firebaseConfig = {
+       apiKey: "",
+       authDomain: "gs11-21.firebaseapp.com",
+       databaseURL: "https://gs11-21.firebaseio.com",
+       projectId: "gs11-21",
+       storageBucket: "gs11-21.appspot.com",
+       messagingSenderId: "227890330956",
+       appId: "1:227890330956:web:1b4a9b657ad150036323e9"
+     };
+     // Initialize Firebase
+     firebase.initializeApp(firebaseConfig);
+ 
+
+   //firebaseのデーターベース（保存させる場所）を使いますよと言うjsのコードを貼り付ける
+   // xxxxxスクリプトを貼り付ける
+   newPostRef = firebase.database().ref();
+
+   // ここから下にjqueryの処理を書いて練習します
+   // 送信ボタンをクリックされたら次の処理をする
+   $("#send").on("click", function () {
+     
+     // データを登録で送る
+     newPostRef.push({
+       //名前
+      username:$("#username").val(),
+       //テキストエリア
+      text: $("#text").val()
+     })
+     // 文字を空にする
+     $("#username").val(""); //空にする
+     $("#text").val(""); //空にする
+   });
+
+   // 受信処理
+   newPostRef.on("child_added", function (data) {
+     //ここに保存されたデータが全て入ってくる
+     // function (data)のdataにfirebaseのデータが入ってくる
+
+     // let k = data.key; //今回は使いません
+
+     //console.logで受信=firebaseに登録されている中身を確認しよう！
+
+     //テンプレートリテラル `` を活用して変数にhtmlを埋め込もう！ 
+     let v = data.val();
+     let k = data.key;
+
+     let str = `<p>${v.username}<br>${v.text}<p>`;
+
+     // ここでデータをhtmlに埋め込む prependには変数を埋め込もう！
+     //$("#output").prepend(str);
+     $("#output").append(str);
+   });
+       
+   $("#text").on("keydown", function (e) {
+     console.log(e); // eventの中身をconsole.logでみてみよう！
+     if (e.keyCode === 13) {
+       newPostRef.push({
+       username: $("#username").val(),
+       text: $("#text").val()
+       })
+       $("#text").val();
+       $("#username").val();
+     }
+   })
+ </script>
+  </body>
+ 
+</html>
